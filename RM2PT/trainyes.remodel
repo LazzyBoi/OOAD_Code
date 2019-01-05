@@ -1,0 +1,742 @@
+﻿/**
+ * Use Case Model
+ */
+UseCaseModel TrainTicketReservationSystem {
+	Actor Customer {
+		UC::Recharge()  // 没有单独做支付系统，把账户余额做到用户里面去了，增加一个充值用例
+		UC::CheckTrains()
+		UC::CheckOrders()
+		UC::BookTickets()
+		UC::RefundTickets()
+	}
+	Actor Clerk {
+		UC::ManageUser()
+		UC::ManageTrain()
+	}
+}
+
+/**
+ * General Systems
+ */
+Service BookSystem {
+	
+	[Operation]
+	bs_inputUserID(userid)
+	bs_inputPassword(pwd)
+	bs_inputTrain(trainid)
+	bs_inputOrderID(orderid)  // 工具应该是不能自己生成一个订单编号的...所以只能委屈顾客手动输入了（狗头
+	pay()
+	bs_printOrderInfo()
+	bs_quit()
+	
+	[TempProperty]
+	PasswordValidated : Boolean
+	InputUser : Customer
+	UserIDValidated : Boolean
+	InputTrain : Train
+	TrainIDValidated : Boolean
+	IsBook : Boolean
+	tmpOrderID : Integer
+	
+}
+
+Service RefundSystem {
+	
+	[Operation]
+	rs_inputUserID(userid)
+	rs_inputPassword(pwd)
+	rs_inputOrderID(orderid)
+	refund()
+	rs_quit()
+	
+	[TempProperty]
+	PasswordValidated : Boolean
+	InputUser : Customer
+	UserIDValidated : Boolean
+	InputOrder : Order
+	OrderIDValidated : Boolean
+	IsRefund : Boolean
+}
+
+/**
+ * Services
+ */
+ 
+ Service TrainsCheck {
+	
+	[Operation]
+	tc_inputTrain(trainid)
+	printTrainInfo()
+	
+	[TempProperty]
+	InputTrain : Train
+	TrainIDValidated : Boolean
+	
+}
+
+Service OrdersCheck {
+	
+	[Operation]
+	oc_inputOrder(orderid)
+	oc_printOrderInfo()
+	
+	[TempProperty]
+	InputOrder : Order
+	OrderIDValidated : Boolean	
+}
+
+Service Recharge {
+	
+	[Operation]
+	r_inputUserID(userid)
+	r_inputPassword(pwd)
+	inputAccount(act)
+	
+	[TempProperty]
+	PasswordValidated : Boolean
+	InputUser : Customer
+	UserIDValidated : Boolean
+	IsRecharge : Boolean
+}
+
+
+/**
+ * CRUD Services
+ */
+Service ManageUserCRUDService {
+	
+	[Operation]
+	createUser(userid, nam, pwd, blc)
+	queryUser(userid)
+	modifyUser(userid, nam, pwd, blc)
+	deleteUser(userid)
+	
+}
+
+Service ManageTrainsCRUDService {
+	
+	[Operation]
+	createTrain(trainid, dept, dest, pric)
+	queryTrain(trainid)
+	modifyTrain(trainid, dept, dest, pric)
+	deleteTrain(trainid)
+	
+}
+
+Service ThirdPartServices {
+	
+}
+
+//Interaction BookTicketsInteraction {
+//	
+//	[Participants: Customer BookSystem]  // 这里我算明白了，原来顺序图的参与者必须写在service里...
+//	
+//	CallMessage::callMessage1(inputUserID callMessage1SendingEnd -> execution1StartEnd)
+//	ReturnMessage::callMessage1Return(execution1FinishEnd -> callMessage1ReturnReceivingEnd callMessage1)
+//	CallMessage::callMessage3(inputPassword callMessage3SendingEnd -> execution2StartEnd)
+//	ReturnMessage::callMessage3Return(execution2FinishEnd -> callMessage3ReturnReceivingEnd callMessage3)
+//	CallMessage::callMessage5(inputTrain callMessage5SendingEnd -> execution3StartEnd)
+//	ReturnMessage::callMessage5Return(execution3FinishEnd -> callMessage5ReturnReceivingEnd callMessage5)
+//	CallMessage::callMessage7(inputOrderID callMessage7SendingEnd -> execution4StartEnd)
+//	ReturnMessage::callMessage7Return(execution4FinishEnd -> callMessage7ReturnReceivingEnd callMessage7)
+//	CallMessage::callMessage9(pay callMessage9SendingEnd -> execution5StartEnd)
+//	ReturnMessage::callMessage9Return(execution5FinishEnd -> callMessage9ReturnReceivingEnd callMessage9)
+//	CallMessage::callMessage11(printOrderInfo callMessage11SendingEnd -> execution6StartEnd)
+//	ReturnMessage::callMessage11Return(execution6FinishEnd -> callMessage11ReturnReceivingEnd callMessage11)
+//	CallMessage::callMessage13(quit callMessage13SendingEnd -> execution7StartEnd)
+//	ReturnMessage::callMessage13Return(execution7FinishEnd -> callMessage13ReturnReceivingEnd callMessage13)
+//	
+//	Execution::execution1(BookSystem execution1StartEnd execution1FinishEnd)
+//	Execution::execution2(BookSystem execution2StartEnd execution2FinishEnd)
+//	Execution::execution3(BookSystem execution3StartEnd execution3FinishEnd)
+//	Execution::execution4(BookSystem execution4StartEnd execution4FinishEnd)
+//	Execution::execution5(BookSystem execution5StartEnd execution5FinishEnd)
+//	Execution::execution6(BookSystem execution6StartEnd execution6FinishEnd)
+//	Execution::execution7(BookSystem execution7StartEnd execution7FinishEnd)
+//	
+//	MessageEnd::callMessage1SendingEnd(Customer callMessage1)
+//	ExecutionEnd::execution1StartEnd(BookSystem execution1)
+//	ExecutionEnd::execution1FinishEnd(BookSystem execution1)
+//	MessageEnd::callMessage1ReturnReceivingEnd(Customer callMessage1Return)
+//	MessageEnd::callMessage3SendingEnd(Customer callMessage3)
+//	ExecutionEnd::execution2StartEnd(BookSystem execution2)
+//	ExecutionEnd::execution2FinishEnd(BookSystem execution2)
+//	MessageEnd::callMessage3ReturnReceivingEnd(Customer callMessage3Return)
+//	MessageEnd::callMessage5SendingEnd(Customer callMessage5)
+//	ExecutionEnd::execution3StartEnd(BookSystem execution3)
+//	ExecutionEnd::execution3FinishEnd(BookSystem execution3)
+//	MessageEnd::callMessage5ReturnReceivingEnd(Customer callMessage5Return)
+//	MessageEnd::callMessage7SendingEnd(Customer callMessage7)
+//	ExecutionEnd::execution4StartEnd(BookSystem execution4)
+//	ExecutionEnd::execution4FinishEnd(BookSystem execution4)
+//	MessageEnd::callMessage7ReturnReceivingEnd(Customer callMessage7Return)
+//	MessageEnd::callMessage9SendingEnd(Customer callMessage9)
+//	ExecutionEnd::execution5StartEnd(BookSystem execution5)
+//	ExecutionEnd::execution5FinishEnd(BookSystem execution5)
+//	MessageEnd::callMessage9ReturnReceivingEnd(Customer callMessage9Return)
+//	MessageEnd::callMessage11SendingEnd(Customer callMessage9)
+//	ExecutionEnd::execution6StartEnd(BookSystem execution6)
+//	ExecutionEnd::execution6FinishEnd(BookSystem execution6)
+//	MessageEnd::callMessage11ReturnReceivingEnd(Customer callMessage11Return)
+//	MessageEnd::callMessage13SendingEnd(Customer callMessage13)
+//	ExecutionEnd::execution7StartEnd(BookSystem execution7)
+//	ExecutionEnd::execution7FinishEnd(BookSystem execution7)
+//	MessageEnd::callMessage13ReturnReceivingEnd(Customer callMessage13Return)
+//
+//}
+//
+//Interaction RefundTicketsInteraction {
+//	
+//	[Participants: Customer RefundSystem]
+//	
+//	CallMessage::callMessage1(inputUserID callMessage1SendingEnd -> execution1StartEnd)
+//	ReturnMessage::callMessage1Return(execution1FinishEnd -> callMessage1ReturnReceivingEnd callMessage1)
+//	CallMessage::callMessage3(inputPassword callMessage3SendingEnd -> execution2StartEnd)
+//	ReturnMessage::callMessage3Return(execution2FinishEnd -> callMessage3ReturnReceivingEnd callMessage3)
+//	CallMessage::callMessage5(inputOrder callMessage5SendingEnd -> execution3StartEnd)
+//	ReturnMessage::callMessage5Return(execution3FinishEnd -> callMessage5ReturnReceivingEnd callMessage5)
+//	CallMessage::callMessage7(refund callMessage7SendingEnd -> execution4StartEnd)
+//	ReturnMessage::callMessage7Return(execution4FinishEnd -> callMessage7ReturnReceivingEnd callMessage7)
+//	CallMessage::callMessage9(quit callMessage9SendingEnd -> execution5StartEnd)
+//	ReturnMessage::callMessage9Return(execution5FinishEnd -> callMessage9ReturnReceivingEnd callMessage9)
+//	
+//	Execution::execution1(RefundSystem execution1StartEnd execution1FinishEnd)
+//	Execution::execution2(RefundSystem execution2StartEnd execution2FinishEnd)
+//	Execution::execution3(RefundSystem execution3StartEnd execution3FinishEnd)
+//	Execution::execution4(RefundSystem execution4StartEnd execution4FinishEnd)
+//	Execution::execution5(RefundSystem execution5StartEnd execution5FinishEnd)
+//	
+//	MessageEnd::callMessage1SendingEnd(Customer callMessage1)
+//	ExecutionEnd::execution1StartEnd(RefundSystem execution1)
+//	ExecutionEnd::execution1FinishEnd(RefundSystem execution1)
+//	MessageEnd::callMessage1ReturnReceivingEnd(Customer callMessage1Return)
+//	MessageEnd::callMessage3SendingEnd(Customer callMessage3)
+//	ExecutionEnd::execution2StartEnd(RefundSystem execution2)
+//	ExecutionEnd::execution2FinishEnd(RefundSystem execution2)
+//	MessageEnd::callMessage3ReturnReceivingEnd(Customer callMessage3Return)
+//	MessageEnd::callMessage5SendingEnd(Customer callMessage5)
+//	ExecutionEnd::execution3StartEnd(RefundSystem execution3)
+//	ExecutionEnd::execution3FinishEnd(RefundSystem execution3)
+//	MessageEnd::callMessage5ReturnReceivingEnd(Customer callMessage5Return)
+//	MessageEnd::callMessage7SendingEnd(Customer callMessage7)
+//	ExecutionEnd::execution4StartEnd(RefundSystem execution4)
+//	ExecutionEnd::execution4FinishEnd(RefundSystem execution4)
+//	MessageEnd::callMessage7ReturnReceivingEnd(Customer callMessage7Return)
+//	MessageEnd::callMessage9SendingEnd(Customer callMessage9)
+//	ExecutionEnd::execution5StartEnd(RefundSystem execution5)
+//	ExecutionEnd::execution5FinishEnd(RefundSystem execution5)
+//	MessageEnd::callMessage9ReturnReceivingEnd(Customer callMessage9Return)
+//	
+//}
+
+@AutoCRUD
+Entity Customer {
+/**
+ * Attributes should start with Capital Letter
+ */	
+	UserID : Integer
+	Name : String
+	Password : String
+	Balance : Integer
+	
+	[Refer]
+	Makes : Order*
+	
+	[INV]
+	inv UniqueUserID : Customer.allInstance()->isUnique(c:Customer | c.UserID)
+	inv BalanceGreatAndEqualZero : balance >= 0
+}
+
+@AutoCRUD
+Entity Train {
+	
+	TrainID : Integer
+	Departure : String
+	Destination : String
+	Price : Integer
+	
+	[Refer]
+	Related : Order
+	
+	[INV]
+	inv UniqueTrainID : Train.allInstance()->isUnique(t:Train | t.TrainID)
+	inv PriceGreatAndEqualZero : price >= 0
+}
+
+Entity Order {
+	
+	OrderID : Integer
+	TrainID : Integer
+	TotalPrice : Integer
+	
+	[Refer]
+	MakedBy : Customer
+	Happens : Train
+	
+	[INV]
+	inv UniqueOrderID : Order.allInstance()->isUnique(o:Order | o.OrderID)
+	inv TotalPriceGreatAndEqualZero : totalPrice >= 0
+	
+}
+
+Contract Recharge::r_inputUserID(userid : Integer) : Boolean {
+	
+	definition:
+	    cu:Customer = Customer.allInstance()->any(c:Customer | c.userID = userid)
+	
+	precondition:
+	    true
+	
+	postcondition:
+	    if
+	        (cu.oclIsUndefined() = false)
+	    then
+	        self.UserIDValidated = true and
+	        self.InputUser = cu and
+	        result = true
+	    else
+	        self.UserIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract Recharge::r_inputPassword(pwd : String) : Boolean {
+	
+	precondition:
+	    self.UserIDValidated = true and
+		self.InputUser.oclIsUndefined() = false
+	
+	postcondition:
+	    if
+			self.InputUser.password = pwd
+		then
+			self.PasswordValidated = true and
+			return = true
+		else
+			self.PasswordValidated = false and
+			return = false
+		endif	
+}
+
+Contract Recharge::inputAccount(act : Integer) : Boolean {
+	
+	precondition:
+	    self.PasswordValidated = true and
+		self.UserIDValidated = true
+	
+	postcondition:
+	    self.InputUser.balance = self.InputUser.balance@pre + act and
+		self.IsRecharge = true and
+		result = true
+}
+
+Contract TrainsCheck::tc_inputTrain(trainid : Integer) : Boolean {
+	
+	definition:
+	    tr:Train = Train.allInstance()->any(t:Train | t.trainID = trainid)
+	    
+	precondition:
+	    true
+	
+	postcondition:
+	   if
+	        (tr.oclIsUndefined() = false)
+	    then
+	        self.TrainIDValidated = true and
+	        self.InputTrain = tr and
+	        result = true
+	    else
+	        self.TrainIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract TrainsCheck::printTrainInfo() : String {
+	
+	precondition:
+	    self.TrainIDValidated = true and
+	    self.InputTrain.oclIsUndefined() = false
+	
+	postcondition:
+	    result = InputTrain.trainID + InputTrain.destination  // 只能写个trainID和目的地了...写多了会报错
+}
+
+Contract OrdersCheck::oc_inputOrder(orderid : Integer) : Boolean {
+	
+	definition:
+	    od:Order = Order.allInstance()->any(o:Order | o.orderID = orderid)
+	    
+	precondition:
+	    true
+	
+	postcondition:
+	   if
+	        (od.oclIsUndefined() = false)
+	    then
+	        self.OrderIDValidated = true and
+	        self.InputOrder = od and
+	        result = true
+	    else
+	        self.OrderIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract OrdersCheck::oc_printOrderInfo() : String {
+	
+	precondition:
+	    self.OrderIDValidated = true and
+	    self.InputOrder.oclIsUndefined() = false
+	
+	postcondition:
+	    result = InputOrder.orderID + InputOrder.totalPrice  // 只能写个订单和价格了...写多了会报错
+}
+
+Contract BookSystem::bs_inputUserID(userid : Integer) : Boolean {
+	
+	definition:
+	    cu:Customer = Customer.allInstance()->any(c:Customer | c.userID = userid)
+	
+	precondition:
+	    true
+	
+	postcondition:
+	    if
+	        (cu.oclIsUndefined() = false)
+	    then
+	        self.UserIDValidated = true and
+	        self.InputUser = cu and
+	        result = true
+	    else
+	        self.UserIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract BookSystem::bs_inputPassword(pwd : Integer) : Boolean {
+	
+	precondition:
+	    self.UserIDValidated = true and
+		self.InputUser.oclIsUndefined() = false
+	
+	postcondition:
+	    if
+			self.InputUser.password = pwd
+		then
+			self.PasswordValidated = true and
+			return = true
+		else
+			self.PasswordValidated = false and
+			return = false
+		endif	
+}
+
+Contract BookSystem::bs_inputTrain(trainid : Integer) : Boolean {
+	
+	definition:
+	    tr:Train = Train.allInstance()->any(t:Train | t.trainID = trainid)
+	    
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false
+	
+	postcondition:
+	   if
+	        (tr.oclIsUndefined() = false)
+	    then
+	        self.TrainIDValidated = true and
+	        self.InputTrain = tr and
+	        result = true
+	    else
+	        self.TrainIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract BookSystem::bs_inputOrderID(orderid : Integer) : Boolean {
+	
+	definition:
+	    order:Order = Order.allInstance()->any(order:Order | order.orderID = orderid)
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false and
+		self.TrainIDValidated = true and
+		self.InputTrain.oclIsUndefined() = false
+	
+	postcondition:
+	    let order:Order in
+	    order.oclIsNew() and
+		order.orderID = orderid and
+		order.trainID = self.InputTrain.trainID and
+		order.totalPrice = self.InputTrain.price and
+		User.allInstance()->includes(use) and
+		self.tmpOrderID = orderid and
+	    result = true
+}
+
+Contract BookSystem::pay() : Integer {
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false and
+		self.TrainIDValidated = true and
+		self.InputTrain.oclIsUndefined() = false and
+		self.InputUser.balance >= self.InputTrain.price
+	
+	postcondition:
+	    self.InputUser.balance = self.InputTrain.price and
+	    self.isBook = true and
+	    result = self.InputTrain.price
+}
+
+Contract BookSystem::bs_printOrderInfo() : Integer {
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false and
+		self.TrainIDValidated = true and
+		self.InputTrain.oclIsUndefined() = false and
+		self.isBook = true
+	
+	postcondition:
+	    result = self.tmpOrderID
+}
+
+Contract BookSystem::bs_quit() : Boolean {
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false
+		
+	postcondition:
+	    self.PasswordValidated = false and
+	    self.InputUser = null and
+	    self.UserIDValidated = false and
+	    self.InputTrain = null and
+	    self.TrainIDValidated = false and
+	    self.IsBook = false and
+	    self.tmpOrderID = 0 and
+	    result = true
+}
+
+Contract RefundSystem::rs_inputUserID(userid : Integer) : Boolean {
+	
+	definition:
+	    cu:Customer = Customer.allInstance()->any(c:Customer | c.userID = userid)
+	
+	precondition:
+	    true
+	
+	postcondition:
+	    if
+	        (cu.oclIsUndefined() = false)
+	    then
+	        self.UserIDValidated = true and
+	        self.InputUser = cu and
+	        result = true
+	    else
+	        self.UserIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract RefundSystem::rs_inputPassword(pwd : Integer) : Boolean {
+	
+	precondition:
+	    self.UserIDValidated = true and
+		self.InputUser.oclIsUndefined() = false
+	
+	postcondition:
+	    if
+			self.InputUser.password = pwd
+		then
+			self.PasswordValidated = true and
+			return = true
+		else
+			self.PasswordValidated = false and
+			return = false
+		endif	
+}
+
+Contract RefundSystem::rs_inputOrderID(orderid : Integer) : Boolean {
+	
+	definition:
+	    od:Order = Order.allInstance()->any(od:Order | od.orderID = orderid)
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false
+	
+	postcondition:
+	    if
+	        (od.oclIsUndefined() = false)
+	    then
+	        self.OrderIDValidated = true and
+	        self.InputOrder = od and
+	        result = true
+	    else
+	        self.OrderIDValidated = false and
+	        result = false
+	    endif
+}
+
+Contract RefundSystem::Refund() : Integer {
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false and
+		self.OrderIDValidated = true and
+		self.InputOrder.oclIsUndefined() = false
+	
+	postcondition:
+	    self.InputUser.balance = self.InputUser.balance@pre + self.InputOrder.totalPrice and
+		self.IsRefund = true and
+		result = self.InputOrder.totalPrice
+}
+
+Contract RefundSystem::rs_quitr() : Boolean {
+	
+	precondition:
+	    self.UserIDValidated = true and
+	    self.PasswordValidated = true and
+		self.InputUser.oclIsUndefined() = false
+		
+	postcondition:
+	    self.PasswordValidated = false and
+	    self.InputUser = null and
+	    self.UserIDValidated = false and
+	    self.InputOrder = null and
+	    self.OrderIDValidated = false and
+	    self.IsRefund = false and
+	    result = true
+}
+
+Contract ManageUserCRUDService::createUser(userid : Integer, nam : String, pwd : String, blc : Integer) : Boolean {
+	
+	definition:
+		customer:Customer = Customer.allInstance()->any(cus:Customer | cus.userID = userid)
+	
+	precondition:
+		customer.oclIsUndefined() = true
+		
+	postcondition:
+	    let cus:Customer in
+		cus.oclIsNew() and
+		cus.userID = userid and
+		cus.name = nam and
+		cus.password = pwd and
+		cus.balance = blc and
+		Customer.allInstance()->includes(cus) and
+		result = true
+}
+
+Contract ManageUserCRUDService::queryUser(userid : Integer) : Customer {
+	
+	definition:
+		customer:Customer = Customer.allInstance()->any(cus:Customer | cus.userID = userid)
+		
+	precondition:
+	    customer.oclIsUndefined() = false
+	    
+	postcondition:
+	    result = customer
+}
+
+Contract ManageUserCRUDService::modifyUser(userid : Integer, nam : String, pwd : String, blc : Integer) : Boolean {
+	
+	definition:
+		customer:Customer = Customer.allInstance()->any(cus:Customer | cus.userID = userid)
+		
+	precondition:
+	    customer.oclIsUndefined() = false
+	    
+	postcondition:
+	    customer.userID = userid and
+		customer.name = nam and
+		customer.password = pwd and
+		customer.balance = blc and
+		result = true
+}
+
+Contract ManageUserCRUDService::deleteUser(userid : Integer) : Boolean {
+	
+	definition:
+		customer:Customer = Customer.allInstance()->any(cus:Customer | cus.userID = userid)
+		
+	precondition:
+	    customer.oclIsUndefined() = false and
+	    Customer.allInstance()->includes(customer)
+	
+	postcondition:
+	    Customer.allInstance()->excludes(customer) and
+	    result = true
+}
+
+Contract ManageTrainsCRUDService::createTrain(trainid : Integer, dept : String, dest : String, pric : Integer) : Boolean {
+	
+	definition:
+		train:Train = Train.allInstance()->any(tr:Train | tr.trainID = trainid)
+	
+	precondition:
+		train.oclIsUndefined() = true
+		
+	postcondition:
+	    let tr:Train in
+		tr.oclIsNew() and
+		tr.trainID = trainid and
+		tr.departure = dept and
+		tr.destination = dest and
+		tr.price = pric and
+		Train.allInstance()->includes(tr) and
+		result = true
+}
+
+Contract ManageUserCRUDService::queryTrain(trainid : Integer) : Train {
+	
+	definition:
+		train:Train = Train.allInstance()->any(tr:Train | tr.trainID = trainid)
+		
+	precondition:
+	    train.oclIsUndefined() = false
+	    
+	postcondition:
+	    result = train
+}
+
+Contract ManageUserCRUDService::modifyTrain(trainid : Integer, dept : String, dest : String, pric : Integer) : Boolean {
+	
+	definition:
+		train:Train = Train.allInstance()->any(tr:Train | tr.trainID = trainid)
+		
+	precondition:
+	    train.oclIsUndefined() = false
+	    
+	postcondition:
+	    tr.trainID = trainid and
+		tr.departure = dept and
+		tr.destination = dest and
+		tr.price = pric and
+		result = true
+}
+
+Contract ManageUserCRUDService::deleteTrain(userid : Integer) : Boolean {
+	
+	definition:
+		train:Train = Train.allInstance()->any(tr:Train | tr.trainID = trainid)
+		
+	precondition:
+	    train.oclIsUndefined() = false and
+	    Train.allInstance()->includes(train)
+	
+	postcondition:
+	    Train.allInstance()->excludes(train) and
+	    result = true
+}
